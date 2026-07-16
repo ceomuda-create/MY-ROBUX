@@ -1,0 +1,1123 @@
+@import "tailwindcss";
+
+
+:root {
+  --background: #f3e1c7;
+  --foreground: #5b3925;
+}
+
+
+* {
+  box-sizing: border-box;
+}
+
+
+html {
+  scroll-behavior: smooth;
+}
+
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+
+  background:
+    linear-gradient(
+      135deg,
+      #fff1d6,
+      #e8c58f,
+      #9b6b3f
+    );
+
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+
+/* =========================
+   SCROLL REVEAL
+========================= */
+
+
+.fade-up {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all .8s ease;
+}
+
+
+.fade-up.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+
+/* =========================
+   LOGO PREMIUM
+========================= */
+
+
+.logo-3d {
+
+  display: inline-block;
+
+  font-size: 70px;
+  font-weight: 900;
+  letter-spacing: 3px;
+
+  color: #d4af37;
+
+
+  text-shadow:
+
+    0 3px 0 #8b5e3c,
+    0 8px 20px rgba(0,0,0,.35),
+    0 0 25px rgba(255,215,0,.7);
+
+
+  animation:
+    logoFloat 3s ease-in-out infinite;
+
+}
+
+
+
+@keyframes logoFloat {
+
+  0%,100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+
+}
+
+
+
+/* =========================
+   GOLD BACKGROUND
+========================= */
+
+
+.gold-bg {
+
+  background:
+    linear-gradient(
+      135deg,
+      #fff1d6,
+      #ffd56a,
+      #9b6b3f
+    );
+
+  background-size:300% 300%;
+
+  animation:
+    goldMove 12s ease infinite;
+
+}
+
+
+
+@keyframes goldMove {
+
+  0% {
+    background-position:0% 50%;
+  }
+
+  50% {
+    background-position:100% 50%;
+  }
+
+  100% {
+    background-position:0% 50%;
+  }
+
+}
+
+
+
+/* =========================
+   GOLD PARTICLE
+========================= */
+
+
+.gold-particles {
+
+  position:relative;
+  overflow:hidden;
+
+}
+
+
+
+.gold-particles::before {
+
+  content:"";
+
+  position:absolute;
+
+  inset:0;
+
+
+  background-image:
+
+  radial-gradient(
+    circle,
+    rgba(255,215,0,.35) 2px,
+    transparent 2px
+  );
+
+
+  background-size:
+  70px 70px;
+
+
+  animation:
+  particleMove 15s linear infinite;
+
+
+  pointer-events:none;
+
+}
+
+
+
+@keyframes particleMove {
+
+  from {
+    transform:translateY(0);
+  }
+
+
+  to {
+    transform:translateY(-120px);
+  }
+
+}
+/* =========================
+   CARD PREMIUM
+========================= */
+
+
+.card-premium {
+
+  position:relative;
+  overflow:hidden;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.85),
+      #ffe6b8
+    );
+
+
+  border:
+    1px solid rgba(255,215,0,.35);
+
+
+  box-shadow:
+    0 15px 35px rgba(91,57,37,.18);
+
+
+  backdrop-filter:
+    blur(15px);
+
+
+  transition:
+    .4s ease;
+
+}
+
+
+
+.card-premium::before {
+
+  content:"";
+
+  position:absolute;
+
+  top:0;
+  left:-120%;
+
+
+  width:60%;
+  height:100%;
+
+
+  background:
+    linear-gradient(
+      120deg,
+      transparent,
+      rgba(255,255,255,.7),
+      transparent
+    );
+
+
+  transform:
+    skewX(-25deg);
+
+
+  transition:
+    .7s;
+
+}
+
+
+
+.card-premium:hover::before {
+
+  left:140%;
+
+}
+
+
+
+.card-premium:hover {
+
+  transform:
+    translateY(-10px)
+    scale(1.03);
+
+
+  box-shadow:
+
+    0 25px 60px
+    rgba(184,134,11,.35);
+
+}
+
+
+
+/* =========================
+   BEST SELLER CARD
+========================= */
+
+
+.best-card {
+
+  border:
+    3px solid #ffd700;
+
+
+  box-shadow:
+
+    0 0 25px
+    rgba(255,215,0,.6);
+
+
+}
+
+
+
+.best-seller {
+
+  background:
+
+    linear-gradient(
+      135deg,
+      #ffd700,
+      #ff9900
+    );
+
+
+  color:#5b3925;
+
+
+  font-weight:900;
+
+
+  animation:
+    pulseGold 2s infinite;
+
+}
+
+
+
+@keyframes pulseGold {
+
+  0%,100% {
+
+    transform:
+      scale(1);
+
+  }
+
+
+  50% {
+
+    transform:
+      scale(1.05);
+
+  }
+
+}
+
+
+
+/* =========================
+   BUTTON PREMIUM
+========================= */
+
+
+button {
+
+  cursor:pointer;
+
+
+  transition:
+    .3s ease;
+
+}
+
+
+
+button:hover {
+
+  transform:
+    translateY(-3px);
+
+}
+
+
+
+.order-button {
+
+
+  position:relative;
+
+  overflow:hidden;
+
+
+  background:
+
+    linear-gradient(
+      135deg,
+      #5b3925,
+      #c69214
+    );
+
+
+  color:white;
+
+
+  font-weight:900;
+
+
+  box-shadow:
+
+    0 10px 25px
+    rgba(184,134,11,.45);
+
+}
+
+
+
+.order-button::before {
+
+  content:"";
+
+
+  position:absolute;
+
+
+  top:0;
+  left:-120%;
+
+
+  width:60%;
+  height:100%;
+
+
+  background:
+
+    linear-gradient(
+      120deg,
+      transparent,
+      rgba(255,255,255,.8),
+      transparent
+    );
+
+
+  transform:
+    skewX(-25deg);
+
+
+  animation:
+
+    buttonShine 3s infinite;
+
+}
+
+
+
+@keyframes buttonShine {
+
+  100% {
+
+    left:140%;
+
+  }
+
+}
+
+
+
+.order-button:hover {
+
+  box-shadow:
+
+    0 15px 35px
+    rgba(255,215,0,.6);
+
+}
+
+
+
+/* =========================
+   BADGE PREMIUM
+========================= */
+
+
+.badge-premium {
+
+
+  background:
+
+    linear-gradient(
+      135deg,
+      #ffd700,
+      #fff1a8,
+      #ff9900
+    );
+
+
+  color:#5b3925;
+
+
+  font-weight:900;
+
+
+  background-size:
+    200% 200%;
+
+
+  animation:
+
+    goldShine 3s infinite;
+
+}
+
+
+
+@keyframes goldShine {
+
+
+  0% {
+
+    background-position:
+    0% 50%;
+
+  }
+
+
+  50% {
+
+    background-position:
+    100% 50%;
+
+  }
+
+
+  100% {
+
+    background-position:
+    0% 50%;
+
+  }
+
+}
+/* =========================
+   WHATSAPP FLOAT PREMIUM
+========================= */
+
+
+.wa-float {
+
+  position:fixed;
+
+  right:20px;
+  bottom:20px;
+
+  z-index:999;
+
+
+  display:flex;
+
+  align-items:center;
+
+  gap:8px;
+
+
+  padding:14px 22px;
+
+
+  border-radius:999px;
+
+
+  background:
+
+    linear-gradient(
+      135deg,
+      #22c55e,
+      #16a34a
+    );
+
+
+  color:white;
+
+
+  font-weight:900;
+
+
+  box-shadow:
+
+    0 10px 30px
+    rgba(0,0,0,.25);
+
+
+  animation:
+
+    waFloat 3s ease-in-out infinite;
+
+
+  overflow:hidden;
+
+
+  transition:.3s ease;
+
+}
+
+
+
+.wa-float::before {
+
+  content:"";
+
+
+  position:absolute;
+
+
+  top:0;
+  left:-100%;
+
+
+  width:60%;
+  height:100%;
+
+
+  background:
+
+    linear-gradient(
+      120deg,
+      transparent,
+      rgba(255,255,255,.7),
+      transparent
+    );
+
+
+  transform:
+    skewX(-25deg);
+
+
+  animation:
+
+    waShine 3s infinite;
+
+}
+
+
+
+@keyframes waShine {
+
+  100% {
+
+    left:140%;
+
+  }
+
+}
+
+
+
+.wa-float:hover {
+
+  transform:
+    scale(1.12)
+    translateY(-5px);
+
+
+  box-shadow:
+
+    0 15px 40px
+    rgba(34,197,94,.6);
+
+}
+
+
+
+@keyframes waFloat {
+
+
+  0%,100% {
+
+    transform:
+      translateY(0);
+
+  }
+
+
+  50% {
+
+    transform:
+      translateY(-8px);
+
+  }
+
+}
+
+
+
+/* =========================
+   MARQUEE TEXT
+========================= */
+
+
+.animate-marquee {
+
+  display:inline-block;
+
+
+  white-space:nowrap;
+
+
+  animation:
+
+    marquee 15s linear infinite;
+
+}
+
+
+
+@keyframes marquee {
+
+
+  from {
+
+    transform:
+      translateX(100%);
+
+  }
+
+
+  to {
+
+    transform:
+      translateX(-100%);
+
+  }
+
+}
+
+
+
+/* =========================
+   GOLD DUST
+========================= */
+
+
+.gold-dust {
+
+
+  position:absolute;
+
+
+  width:8px;
+  height:8px;
+
+
+  border-radius:50%;
+
+
+  background:
+
+    radial-gradient(
+      circle,
+      #ffd700,
+      transparent
+    );
+
+
+  animation:
+
+    dustMove linear infinite;
+
+}
+
+
+
+@keyframes dustMove {
+
+
+  0% {
+
+    transform:
+      translateY(100px)
+      scale(.5);
+
+
+    opacity:0;
+
+  }
+
+
+  50% {
+
+    opacity:1;
+
+  }
+
+
+  100% {
+
+    transform:
+      translateY(-100vh)
+      scale(1.3);
+
+
+    opacity:0;
+
+  }
+
+}
+
+
+
+/* =========================
+   AURORA LIGHT
+========================= */
+
+
+.aurora {
+
+
+  position:absolute;
+
+
+  width:450px;
+  height:450px;
+
+
+  border-radius:50%;
+
+
+  filter:
+    blur(100px);
+
+
+  opacity:.18;
+
+
+  animation:
+
+    auroraMove 14s ease infinite;
+
+}
+
+
+
+.aurora-1 {
+
+  background:#ffd54f;
+
+  top:-120px;
+  left:-120px;
+
+}
+
+
+
+.aurora-2 {
+
+  background:#ffe082;
+
+  top:-120px;
+  right:-120px;
+
+  animation-delay:3s;
+
+}
+
+
+
+@keyframes auroraMove {
+
+
+  0%,100% {
+
+    transform:
+      scale(1);
+
+  }
+
+
+  50% {
+
+    transform:
+      scale(1.15)
+      translate(40px,-40px);
+
+  }
+
+}
+
+
+
+/* =========================
+   MOBILE RESPONSIVE
+========================= */
+
+
+@media(max-width:640px){
+
+
+.logo-3d {
+
+  font-size:45px;
+
+}
+
+
+
+.card-premium:hover {
+
+  transform:
+    translateY(-5px)
+    scale(1.01);
+
+}
+
+
+
+.wa-float {
+
+  right:15px;
+  bottom:15px;
+
+
+  padding:
+
+    12px 18px;
+
+}
+
+
+}
+/* =========================
+   MOUSE SPOTLIGHT
+========================= */
+
+
+:root {
+
+  --mouse-x:50%;
+  --mouse-y:50%;
+
+}
+
+
+
+.mouse-spotlight {
+
+  position:fixed;
+
+
+  inset:0;
+
+
+  pointer-events:none;
+
+
+  z-index:5;
+
+
+  background:
+
+    radial-gradient(
+      250px circle at var(--mouse-x) var(--mouse-y),
+      rgba(255,215,0,.12),
+      transparent 70%
+    );
+
+}
+
+
+
+/* =========================
+   FLOAT ELEMENT
+========================= */
+
+
+.float {
+
+  animation:
+
+    floatMove 3s ease-in-out infinite;
+
+}
+
+
+
+@keyframes floatMove {
+
+
+  0%,100% {
+
+    transform:
+      translateY(0);
+
+  }
+
+
+  50% {
+
+    transform:
+      translateY(-12px);
+
+  }
+
+}
+
+
+
+/* =========================
+   PREMIUM GLOW TEXT
+========================= */
+
+
+.logo-premium {
+
+
+  color:#5b3925;
+
+
+  text-shadow:
+
+    0 0 10px #ffd700,
+    0 0 25px #ffb300,
+    0 0 40px #ff9900;
+
+
+  animation:
+
+    logoGlow 2s infinite alternate;
+
+}
+
+
+
+@keyframes logoGlow {
+
+
+  from {
+
+    filter:
+      drop-shadow(0 0 5px #ffd700);
+
+  }
+
+
+  to {
+
+    filter:
+      drop-shadow(0 0 25px #ffd700);
+
+  }
+
+}
+
+
+
+/* =========================
+   SMOOTH SECTION
+========================= */
+
+
+section {
+
+  scroll-margin-top:80px;
+
+}
+
+
+
+/* =========================
+   SELECTION COLOR
+========================= */
+
+
+::selection {
+
+  background:#ffd700;
+
+  color:#5b3925;
+
+}
+
+
+
+/* =========================
+   DARK MODE SUPPORT
+========================= */
+
+
+.dark body {
+
+  background:
+
+    linear-gradient(
+      135deg,
+      #020617,
+      #1e293b
+    );
+
+
+}
+
+
+
+.dark .card-premium {
+
+  background:
+
+    linear-gradient(
+      145deg,
+      #1e293b,
+      #334155
+    );
+
+
+  color:white;
+
+}
+
+
+
+/* =========================
+   END PREMIUM STYLE
+========================= */
