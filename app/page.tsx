@@ -15,7 +15,6 @@ const robuxList = [
   { robux: 1000, gamepass: 135000, username: 140000 },
 ];
 
-
 export default function Home(){
 
 const checkoutRef = useRef<HTMLDivElement>(null);
@@ -23,15 +22,15 @@ const checkoutRef = useRef<HTMLDivElement>(null);
 
 const [darkMode,setDarkMode] = useState(false);
 
+const [showTerms,setShowTerms] = useState(false);
+
 const [method,setMethod] =
 useState<"gamepass"|"username">("gamepass");
-
 
 const [robux,setRobux] = useState(100);
 
 const [customRobux,setCustomRobux] =
 useState(100);
-
 
 const [username,setUsername] =
 useState("");
@@ -42,23 +41,103 @@ useState("");
 const [warning,setWarning] =
 useState("");
 
+const [showPayment,setShowPayment] =
+useState(false);
 
+const [orderId,setOrderId] =
+useState("");
 
-useEffect(()=>{
-  if(darkMode){
-    document.documentElement.classList.add("dark");
-    document.documentElement.style.colorScheme = "dark";
-  }else{
-    document.documentElement.classList.remove("dark");
-    document.documentElement.style.colorScheme = "light";
+const [bukti,setBukti] =
+useState<File | null>(null);
+
+const [timeLeft, setTimeLeft] = useState(600);
+
+useEffect(() => {
+
+  // Selalu tampilkan syarat & ketentuan
+  setShowTerms(true);
+
+  const savedDark = localStorage.getItem("myrobux_dark");
+
+  if (savedDark === "true") {
+    setDarkMode(true);
   }
-},[darkMode]);
+
+}, []);
+
+// Countdown pembayaran 10 menit
+useEffect(() => {
+
+  if (!showPayment) return;
+
+  const timer = setInterval(() => {
+
+    setTimeLeft((prev) => {
+
+      if (prev <= 1) {
+
+        clearInterval(timer);
+
+        setShowPayment(false);
+
+        setTimeLeft(600);
+
+        setBukti(null);
+
+        alert("⏰ Waktu pembayaran telah habis. Silakan lakukan order kembali.");
+
+        return 0;
+
+      }
+
+      return prev - 1;
+
+    });
+
+  }, 1000);
+
+  return () => clearInterval(timer);
+
+}, [showPayment]);
+
+
+// Dark Mode
+useEffect(() => {
+
+  if (darkMode) {
+
+    document.documentElement.classList.add("dark");
+
+    localStorage.setItem(
+      "myrobux_dark",
+      "true"
+    );
+
+  } else {
+
+    document.documentElement.classList.remove("dark");
+
+    localStorage.setItem(
+      "myrobux_dark",
+      "false"
+    );
+
+  }
+
+}, [darkMode]);
+
+
+function acceptTerms(){
+
+setShowTerms(false);
+
+}
 
 
 
-const selected =
-robuxList.find(
-(item)=>item.robux===robux
+
+const selected = robuxList.find(
+  (item) => item.robux === customRobux
 );
 
 
@@ -66,47 +145,54 @@ robuxList.find(
 const price =
 method==="gamepass"
 ?
-selected?.gamepass ?? robux*150
+selected?.gamepass ?? 0
 :
-selected?.username ?? robux*160;
-
+selected?.username ?? 0;
 
 
 const ticketGamepass =
-Math.ceil(robux / 0.7);
-
+Math.ceil(customRobux / 0.7);
 
 
 function pilihPaket(value:number){
 
 setRobux(value);
+
 setCustomRobux(value);
 
 
 checkoutRef.current?.scrollIntoView({
+
 behavior:"smooth"
+
 });
 
 }
 
 
 
+
+
 function sliderChange(value:number){
 
 setCustomRobux(value);
+
 setRobux(value);
 
-if(value<10){
+
+if(value < 10){
 
 setWarning(
 "⚠️ Minimal 10 Robux"
 );
 
-}else if(value>10000){
+
+}else if(value > 10000){
 
 setWarning(
 "⚠️ Maksimal 10.000 Robux"
 );
+
 
 }else{
 
@@ -118,9 +204,13 @@ setWarning("");
 
 
 
+
+
+
 function orderNow(){
 
-if(!username.trim()){
+
+if(!username){
 
 alert(
 "Masukkan Username Roblox"
@@ -129,6 +219,7 @@ alert(
 return;
 
 }
+
 
 
 if(method==="gamepass" && !gamepassLink){
@@ -143,155 +234,292 @@ return;
 
 
 
-const pesan = `Halo Admin MY ROBUX 👋
+const id =
+"MR-" +
+Math.floor(
+100000 + Math.random()*900000
+);
 
-Saya ingin order Robux.
+
+
+setOrderId(id);
+
+setShowPayment(true);
+setTimeLeft(600);
+
+}
+
+
+
+
+
+function kirimBukti(){
+
+
+if(!bukti){
+
+alert(
+"⚠️ Upload bukti pembayaran terlebih dahulu!"
+);
+
+return;
+
+}
+
+
+
+const pesan = `
+
+Halo Admin MY ROBUX 👋
+
+
+✅ PEMBAYARAN BARU
+
+
+🧾 Order ID:
+${orderId}
+
 
 👤 Username:
 ${username}
 
-💎 Jumlah:
-${robux} Robux
+
+💎 Robux:
+${robux}R
+
 
 📦 Metode:
-${method==="gamepass"
-?"🎮 Gamepass"
-:"💎 Username"
-}
+${method}
 
 
-${
-method==="gamepass"
-?
-`🎟️ Tiket Gamepass:
-${ticketGamepass} Robux
-
-🔗 Link:
-${gamepassLink}`
-:
-""
-}
-
-
-💰 Harga:
+💰 Total:
 Rp ${price.toLocaleString("id-ID")}
 
 
-Terima kasih 🙏`;
+Customer sudah mengirim bukti pembayaran.
+
+`;
 
 
 
 window.open(
+
 "https://wa.me/628982186538?text="+
 encodeURIComponent(pesan),
+
 "_blank"
+
 );
 
+
 }
+
+
+
 
 return (
+<>
 
-<main
-className={`
-min-h-screen
-px-4
-py-6
-transition-all
-duration-500
-relative
-overflow-hidden
+{
+showTerms && (
 
-${
-darkMode
-?
-"bg-gradient-to-br from-slate-950 via-slate-900 to-gray-900 text-white"
-:
-"bg-gradient-to-br from-[#fff1d6] via-[#e8c58f] to-[#9b6b3f] text-[#5b3925]"
-}
-
-`}
+<div
+className="
+fixed
+inset-0
+z-[100]
+flex
+items-center
+justify-center
+bg-black/70
+px-5
+"
 >
 
-{/* EFEK PREMIUM BACKGROUND */}
-
 <div
-className="
-absolute
-top-[-200px]
-left-1/2
--translate-x-1/2
-w-[600px]
-h-[600px]
-rounded-full
-bg-yellow-400/20
-blur-[140px]
-animate-pulse
-"
-/>
 
-
-<div
-className="
-absolute
-bottom-[-150px]
-left-[-150px]
-w-[450px]
-h-[450px]
-rounded-full
-bg-orange-400/20
-blur-[120px]
-animate-pulse
-"
-/>
-
-
-<div
-className="
-absolute
-top-1/2
-right-[-150px]
-w-[400px]
-h-[400px]
-rounded-full
-bg-green-400/10
-blur-[120px]
-animate-pulse
-"
-/>
-
-
-
-
-{/* DARK MODE */}
-
-<div className="
-fixed
-right-5
-top-5
-z-50
-">
-
-<button
-onClick={()=>setDarkMode(!darkMode)}
 className={`
-rounded-full
-px-5
-py-3
-font-black
-shadow-xl
-transition
-hover:scale-110
+w-full
+max-w-lg
+rounded-3xl
+p-7
+shadow-2xl
 
 ${
 darkMode
 ?
-"bg-slate-700 text-yellow-300"
+"bg-slate-900 text-white"
 :
 "bg-white text-[#5b3925]"
 }
 
 `}
+
 >
+
+
+<h2
+className="
+text-center
+text-3xl
+font-black
+"
+>
+
+📜 Syarat & Ketentuan
+
+</h2>
+
+
+
+<div
+className="
+mt-5
+max-h-72
+space-y-3
+overflow-y-auto
+text-sm
+font-bold
+"
+>
+
+
+<p>
+✅ MY ROBUX tidak meminta password atau OTP Roblox.
+</p>
+
+
+<p>
+✅ Username harus benar sebelum order.
+</p>
+
+
+<p>
+✅ Pembayaran harus disertai bukti pembayaran.
+</p>
+
+
+<p>
+✅ Pesanan tanpa bukti pembayaran tidak diproses.
+</p>
+
+
+<p>
+✅ Jangan memberikan data akun Roblox.
+</p>
+
+
+</div>
+
+
+
+<button
+
+onClick={acceptTerms}
+
+className="
+mt-6
+w-full
+rounded-xl
+bg-[#5b3925]
+p-4
+font-black
+text-white
+"
+
+>
+
+Saya Setuju & Masuk
+
+</button>
+
+
+
+</div>
+
+</div>
+
+)
+
+}
+
+
+
+
+
+<main
+
+className={`
+
+min-h-screen
+px-4
+py-6
+transition-all
+duration-500
+
+
+${
+darkMode
+
+?
+
+"bg-slate-950 text-white"
+
+:
+
+"bg-gradient-to-br from-[#fff1d6] via-[#e8c58f] to-[#9b6b3f] text-[#5b3925]"
+
+}
+
+`}
+
+>
+
+
+
+
+<div
+
+className="
+fixed
+right-5
+top-5
+z-50
+"
+
+>
+
+
+<button
+
+onClick={()=>setDarkMode(!darkMode)}
+
+className={`
+
+rounded-full
+px-5
+py-3
+font-black
+shadow-lg
+
+
+${
+darkMode
+
+?
+
+"bg-slate-900 text-yellow-300"
+
+:
+
+"bg-white/40 text-[#5b3925]"
+
+}
+
+`}
+
+>
+
 
 {
 darkMode
@@ -301,125 +529,140 @@ darkMode
 "🌙 DARK"
 }
 
+
 </button>
+
 
 </div>
 
 
 
-<div className="
-relative
-z-10
+
+
+
+<div
+
+className="
 mx-auto
 max-w-5xl
-pt-10
-">
+"
+
+>
 
 
-
-{/* STATUS */}
-
-<div className="
-flex
-justify-center
-">
 
 <div
 className={`
+relative
+mx-auto
+w-fit
+overflow-hidden
 rounded-full
-px-5
-py-2
+px-10
+py-4
 font-black
+tracking-widest
+border
 transition-all
-duration-300
+duration-500
+cursor-pointer
+hover:scale-110
+hover:-translate-y-1
 
 ${
 darkMode
 ?
-"bg-slate-800 text-yellow-300 shadow-[0_0_20px_rgba(250,204,21,0.5)]"
+"bg-gradient-to-r from-green-900 via-emerald-700 to-green-900 border-green-400 text-green-200 shadow-[0_0_45px_rgba(34,197,94,.8)]"
 :
-"bg-green-100 text-green-700"
+"bg-gradient-to-r from-green-100 via-white to-green-100 border-green-400 text-green-700 shadow-[0_0_35px_rgba(34,197,94,.45)]"
 }
 `}
 >
+
+<span className="absolute inset-0 animate-pulse bg-white/10"></span>
+
+<span className="relative">
 🟢 STORE OPEN • MY ROBUX
-</div>
+</span>
 
 </div>
 
 
 
 
-{/* HEADER */}
 
-<header className="
-mt-10
+
+<header
+
+className="
+mt-6
 text-center
-">
+"
+
+>
+
 
 
 <h1
 className={`
+mt-3
 text-6xl
-md:text-7xl
+md:text-8xl
 font-black
-tracking-widest
+tracking-[0.15em]
+transition-all
+duration-500
+cursor-default
+hover:scale-105
 
 ${
 darkMode
-? "text-yellow-400"
-: "text-yellow-600"
+?
+"bg-gradient-to-r from-yellow-200 via-yellow-400 to-amber-300 bg-clip-text text-transparent drop-shadow-[0_0_25px_gold]"
+:
+"bg-gradient-to-r from-yellow-600 via-amber-500 to-yellow-700 bg-clip-text text-transparent drop-shadow-[0_0_12px_rgba(255,193,7,.5)]"
 }
-
 `}
 >
-MY ROBUX
+
+💎 MY ROBUX
+
 </h1>
 
 
+
+
 <p
+
 className={`
+
+mt-2
 text-xl
-md:text-2xl
 font-bold
-tracking-wider
+
 
 ${
 darkMode
-? "text-yellow-300"
-: "text-yellow-700"
+
+?
+
+"text-yellow-300"
+
+:
+
+"text-yellow-700"
+
 }
 
 `}
+
 >
+
 PREMIUM ROBUX STORE
+
 </p>
 
 
-
-
-<div className="
-mt-6
-overflow-hidden
-rounded-xl
-bg-[#5b3925]
-py-3
-">
-
-
-<div className="
-animate-marquee
-whitespace-nowrap
-font-black
-text-white
-">
-
-💎 FAST DELIVERY • TRUSTED STORE • AMAN • FAST DELIVERY • TRUSTED STORE
-
-</div>
-
-
-</div>
 
 
 </header>
@@ -429,139 +672,51 @@ text-white
 
 
 
-{/* BENEFIT */}
-
-<section className="
-mt-10
-grid
-gap-5
-md:grid-cols-3
-">
-
-
-{[
-
-["⚡","Proses Cepat",
-"Pesanan diproses dengan cepat"],
-
-["🔒","Aman",
-"Tidak meminta password Roblox"],
-
-["💬","Fast Response",
-"Admin siap membantu"]
-
-].map((item,index)=>(
-
-
-<div
-
-key={index}
-
-className={`
-rounded-3xl
-p-6
-text-center
-shadow-xl
-
-transition-all
-duration-300
-hover:-translate-y-3
-hover:scale-[1.03]
-hover:shadow-2xl
-
-${
-darkMode
-?
-"bg-slate-800 text-white"
-:
-"bg-[#fff4e3]"
-}
-
-`}
-
->
-
-
-<div className="
-text-4xl
-">
-
-{item[0]}
-
-</div>
-
-
-<h3 className="
-mt-3
-text-xl
-font-black
-">
-
-{item[1]}
-
-</h3>
-
-
-<p>
-
-{item[2]}
-
-</p>
-
-
-</div>
-
-
-))}
-
-
-</section>
-
-
-
-
-
-{/* CHECKOUT */}
-
 <section
 
 ref={checkoutRef}
 
 className={`
+
 mt-16
 rounded-3xl
 p-6
 shadow-xl
 
+
 ${
 darkMode
+
 ?
+
 "bg-slate-800"
+
 :
+
 "bg-[#fff4e3]"
+
 }
 
 `}
 
 >
+
 
 
 <h2
-className={`
+
+className="
 text-3xl
 font-black
+text-yellow-500
+"
 
-${
-darkMode
-?
-"text-yellow-300 drop-shadow-[0_0_10px_rgba(250,204,21,0.8)]"
-:
-"text-[#5b3925]"
-}
-`}
 >
+
 🛒 Checkout Robux
+
 </h2>
+
 
 
 
@@ -576,65 +731,74 @@ onChange={(e)=>
 setUsername(e.target.value)
 }
 
+
 className={`
+
 mt-5
 w-full
 rounded-xl
 border
 p-4
 
+
 ${
 darkMode
+
 ?
-"bg-zinc-900 text-white border-zinc-700"
+
+"bg-zinc-900 text-white"
+
 :
-"bg-white text-black border-gray-300"
+
+"bg-white text-black"
+
 }
 
 `}
 
 />
 
-
-
-<div className="
+<div
+className={`
 mt-6
-">
-
-
-<div className={`
-mb-3
-flex
-justify-between
-font-black
+rounded-2xl
+p-4
 
 ${
 darkMode
 ?
-"text-[#5b3925]"
+"bg-slate-900 text-white"
 :
-"text-[#5b3925]"
+"bg-white text-[#5b3925]"
 }
 
-`}>
+`}
+>
 
-<span className={darkMode ? "text-yellow-300" : "text-[#5b3925]"}>
+
+<div
+className="
+flex
+justify-between
+font-black
+"
+>
+
+<span>
 10R
 </span>
 
 
-<span className={darkMode ? "text-yellow-300" : "text-[#5b3925]"}>
+<span>
 💎 {customRobux} Robux
 </span>
 
 
-<span className={darkMode ? "text-yellow-300" : "text-[#5b3925]"}>
+<span>
 10000R
 </span>
 
-
 </div>
-
 
 
 
@@ -642,11 +806,11 @@ darkMode
 
 type="range"
 
-min="10"
+min="100"
 
-max="10000"
+max="1000"
 
-step="10"
+step="100"
 
 value={customRobux}
 
@@ -657,9 +821,8 @@ Number(e.target.value)
 }
 
 className="
-h-3
+mt-3
 w-full
-cursor-pointer
 accent-yellow-500
 "
 
@@ -670,12 +833,16 @@ accent-yellow-500
 {
 warning &&
 
-<p className="
+<p
+
+className="
 mt-3
 text-center
 font-black
-text-red-600
-">
+text-red-500
+"
+
+>
 
 {warning}
 
@@ -684,16 +851,21 @@ text-red-600
 }
 
 
-
 </div>
 
 
 
-<div className="
-mt-5
+
+
+<div
+
+className="
+mt-6
 flex
 gap-3
-">
+"
+
+>
 
 
 <button
@@ -702,16 +874,36 @@ onClick={()=>
 setMethod("gamepass")
 }
 
-className="
+className={`
+
 flex-1
 rounded-xl
-bg-green-400
 p-4
 font-black
-text-black
-dark:bg-green-700
-dark:text-white
-"
+
+
+${
+method==="gamepass"
+
+?
+
+"bg-green-500 text-black"
+
+:
+
+darkMode
+
+?
+
+"bg-slate-700 text-white"
+
+:
+
+"bg-green-100 text-green-700"
+
+}
+
+`}
 
 >
 
@@ -722,22 +914,44 @@ dark:text-white
 
 
 
+
+
 <button
 
 onClick={()=>
 setMethod("username")
 }
 
-className="
+className={`
+
 flex-1
 rounded-xl
-bg-blue-400
 p-4
 font-black
-text-black
-dark:bg-blue-700
-dark:text-white
-"
+
+
+${
+method==="username"
+
+?
+
+"bg-blue-500 text-black"
+
+:
+
+darkMode
+
+?
+
+"bg-slate-700 text-white"
+
+:
+
+"bg-blue-100 text-blue-700"
+
+}
+
+`}
 
 >
 
@@ -746,68 +960,67 @@ dark:text-white
 </button>
 
 
-
 </div>
+
+
+
+
+
+
+
 {
+
 method==="gamepass" && (
 
 <div
+
 className={`
+
 mt-6
 rounded-3xl
 border
 p-6
-shadow-xl
+
 
 ${
 darkMode
+
 ?
-"border-green-500/30 bg-zinc-900"
+
+"bg-zinc-900 border-green-500"
+
 :
-"border-green-300 bg-green-50"
+
+"bg-green-50 border-green-300"
+
 }
+
 `}
+
 >
 
+
+
 <h3
+
 className="
 text-center
 text-2xl
 font-black
-text-green-700
-dark:text-green-400
+text-green-600
 "
+
 >
+
 🎮 METODE GAMEPASS
+
 </h3>
 
 
-<div
-className={`
-mt-6
-rounded-3xl
-border
-border-green-500/30
-p-5
-shadow
-
-${
-darkMode
-?
-"bg-zinc-800 text-white"
-:
-"bg-white text-gray-800"
-}
-`}
->
-
-
-<p className="text-center font-bold">
-Buat Gamepass sebesar:
-</p>
 
 
 <div
+
 className="
 mt-5
 rounded-3xl
@@ -815,55 +1028,92 @@ bg-green-600
 p-6
 text-center
 text-white
-shadow-lg
 "
+
 >
 
-<p className="text-lg font-bold">
-Harga Tiket
+
+<p className="font-bold">
+
+Buat Gamepass:
+
 </p>
 
-<h2 className="
+
+
+<h2
+
+className="
 text-6xl
 font-black
-">
+"
+
+>
+
 {ticketGamepass}R
+
 </h2>
+
 
 </div>
 
 
 
+
+
+
 <input
+
 type="text"
+
 placeholder="Link Gamepass Roblox"
+
 value={gamepassLink}
-onChange={(e)=>setGamepassLink(e.target.value)}
+
+onChange={(e)=>
+setGamepassLink(e.target.value)
+}
+
 
 className={`
+
 mt-5
 w-full
 rounded-xl
 border
 p-4
 
+
 ${
 darkMode
+
 ?
-"border-zinc-700 bg-zinc-900 text-white placeholder-gray-400"
+
+"bg-zinc-800 text-white"
+
 :
-"border-gray-300 bg-white text-black placeholder-gray-500"
+
+"bg-white text-black"
+
 }
+
 `}
+
 />
 
 
-</div>
+
 
 </div>
 
 )
+
 }
+
+
+
+
+
 
 
 <button
@@ -880,8 +1130,6 @@ text-xl
 font-black
 text-white
 shadow-xl
-transition
-hover:scale-105
 "
 
 >
@@ -889,6 +1137,8 @@ hover:scale-105
 🛒 ORDER SEKARANG
 
 </button>
+
+
 
 
 </section>
@@ -899,53 +1149,460 @@ hover:scale-105
 
 
 
-{/* LIST PAKET */}
+
+{
+
+showPayment && (
+
+<div
+
+className="
+fixed
+inset-0
+z-[100]
+flex
+items-center
+justify-center
+bg-black/70
+px-5
+"
+
+>
+
+<div
+className={`
+w-full
+max-w-[380px]
+rounded-[28px]
+p-7
+text-center
+shadow-2xl
+border
+backdrop-blur-xl
+transition-all
+duration-500
+
+${
+darkMode
+? "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 border-yellow-500/40 text-white shadow-[0_0_50px_rgba(250,204,21,.2)]"
+: "bg-gradient-to-br from-white via-yellow-50 to-orange-100 border-yellow-300 text-[#5b3925] shadow-[0_20px_60px_rgba(0,0,0,.15)]"
+}
+`}
+>
+
+
 
 
 <h2
 className={`
 text-4xl
 font-black
-mt-4
+tracking-[0.15em]
+bg-gradient-to-r
+from-yellow-300
+via-amber-500
+to-yellow-300
+bg-clip-text
+text-transparent
 
 ${
 darkMode
 ?
-"text-yellow-300 drop-shadow-[0_0_10px_rgba(250,204,21,0.8)]"
+"drop-shadow-[0_0_20px_gold]"
 :
-"text-[#5b3925]"
+"drop-shadow-[0_0_8px_rgba(255,193,7,.5)]"
 }
 `}
 >
-PAKET ROBUX
+
+💳 PEMBAYARAN
+
 </h2>
 
+<p
+className={`mt-2 font-bold ${
+  darkMode ? "text-yellow-300" : "text-yellow-700"
+}`}
+>
+Secure Payment • MY ROBUX
+</p>
+
+<div
+  className={`mt-5 rounded-2xl border p-5 text-center ${
+    darkMode
+      ? "bg-red-500/10 border-red-500 text-red-300"
+      : "bg-red-50 border-red-300 text-red-600"
+  }`}
+>
+
+  <p className="text-sm font-bold">
+    ⏳ Selesaikan pembayaran sebelum
+  </p>
+
+  <h2 className="mt-2 text-5xl font-black tracking-widest">
+    {Math.floor(timeLeft / 60)
+      .toString()
+      .padStart(2, "0")}
+    :
+    {(timeLeft % 60)
+      .toString()
+      .padStart(2, "0")}
+  </h2>
+
+  <p className="mt-2 text-xs opacity-80">
+    Pesanan akan otomatis dibatalkan jika waktu habis.
+  </p>
+
+</div>
+
+<p className="mt-4 font-bold">
+  Nomor Pesanan
+</p>
+
+
+
+<h3
+
+className="
+text-2xl
+font-black
+text-yellow-500
+"
+
+>
+
+{orderId}
+
+</h3>
+
+
+
+
+<div
+className={`
+relative
+mt-6
+overflow-hidden
+rounded-3xl
+border
+p-5
+
+${
+darkMode
+?
+"bg-white/5 border-yellow-400/30"
+:
+"bg-white/70 border-yellow-300"
+}
+`}
+>
+
+<div
+className="
+absolute
+left-[-50%]
+top-0
+h-full
+w-1/2
+rotate-12
+bg-gradient-to-r
+from-transparent
+via-white/40
+to-transparent
+animate-pulse
+"
+/>
+
+<img
+  src="/qris-myrobux.jpeg"
+  alt="QRIS MY ROBUX"
+  className="
+  mt-6
+  mx-auto
+  w-64
+  rounded-3xl
+  border-4
+  border-white
+  shadow-[0_0_35px_rgba(250,204,21,.45)]
+  hover:scale-105
+  transition-all
+  duration-500
+  "
+/>
+
+</div>
+<div
+className={`
+mt-6
+rounded-2xl
+p-5
+text-left
+
+${
+darkMode
+?
+"bg-white/5 border border-white/10"
+:
+"bg-white/70 border border-yellow-200"
+}
+`}
+>
+
+<div className="flex justify-between">
+<span>👤 Username</span>
+<b>{username}</b>
+</div>
+
+<div className="mt-3 flex justify-between">
+<span>💎 Robux</span>
+<b>{robux}R</b>
+</div>
+
+<div className="mt-3 flex justify-between">
+<span>📦 Metode</span>
+<b>{method==="gamepass"?"Gamepass":"Username"}</b>
+</div>
+
+<div className="mt-3 flex justify-between">
+<span>🆔 Order</span>
+<b>{orderId}</b>
+</div>
+
+<hr className="my-4 opacity-20"/>
+
+<div className="flex justify-between text-xl font-black">
+
+<span>Total</span>
+
+<span className="text-yellow-500">
+
+Rp {price.toLocaleString("id-ID")}
+
+</span>
+
+</div>
+
+</div>
+<div
+
+className={`
+
+mt-5
+rounded-2xl
+p-4
+font-bold
+
+
+${
+darkMode
+
+?
+
+"bg-yellow-900/40 text-yellow-300"
+
+:
+
+"bg-yellow-100 text-[#5b3925]"
+
+}
+
+`}
+
+>
+
+<div
+className={`
+mt-5
+rounded-2xl
+border
+p-5
+font-bold
+leading-8
+
+${
+darkMode
+?
+"bg-yellow-500/10 border-yellow-400 text-yellow-300"
+:
+"bg-yellow-50 border-yellow-300 text-yellow-700"
+}
+`}
+>
+
+⚠️ Setelah melakukan pembayaran, upload bukti pembayaran agar pesanan segera diproses oleh Admin MY ROBUX.
+
+</div>
+
+<br/>
+
+Pesanan tanpa bukti pembayaran tidak diproses.
+
+</div>
+
+
+
+
+
+<div
+
+className="
+mt-5
+rounded-2xl
+border
+p-4
+"
+
+>
 
 
 <p className="
-mt-2
-font-bold
-text-[#8b5e3c]
+font-black
 ">
 
-Pilih paket Robux favorit kamu ✨
+📸 Upload Bukti Pembayaran
 
 </p>
 
 
 
 
+<input
 
-<div className="
-mt-8
-grid
-gap-6
-md:grid-cols-2
-">
+type="file"
+
+accept="image/*"
+
+onChange={(e)=>
+setBukti(
+e.target.files?.[0] || null
+)
+}
+
+className="
+mt-3
+w-full
+rounded-xl
+border
+p-3
+"
+
+/>
 
 
 
 {
+bukti &&
+
+<p
+
+className="
+mt-3
+font-black
+text-green-500
+"
+
+>
+
+✅ {bukti.name}
+
+</p>
+
+}
+
+
+</div>
+
+<button
+  onClick={() => {
+    if (!bukti) {
+      alert("⚠️ Upload bukti pembayaran terlebih dahulu!");
+      return;
+    }
+
+    const pesan = `Halo Admin MY ROBUX 👋
+
+✅ PEMBAYARAN BARU
+
+🧾 Order ID: ${orderId}
+👤 Username: ${username}
+💎 Robux: ${robux}R
+📦 Metode: ${method === "gamepass" ? "Gamepass" : "Username"}
+💰 Total: Rp ${price.toLocaleString("id-ID")}
+
+Saya sudah melakukan pembayaran.
+Bukti pembayaran sudah saya siapkan.`;
+
+    window.open(
+      "https://wa.me/628982186538?text=" + encodeURIComponent(pesan),
+      "_blank"
+    );
+  }}
+  disabled={!bukti}
+  className={`
+    mt-6
+    w-full
+    rounded-xl
+    p-4
+    font-black
+    text-white
+
+    ${
+      bukti
+        ? "bg-green-500 hover:bg-green-600"
+        : "bg-gray-400 cursor-not-allowed"
+    }
+  `}
+>
+  {bukti ? "📲 KIRIM KE OWNER" : "📸 UPLOAD BUKTI DULU"}
+</button>
+
+
+
+<button
+  onClick={() => {
+    setShowPayment(false);
+    setTimeLeft(600);
+    setBukti(null);
+    setOrderId("");
+    setUsername("");
+    setGamepassLink("");
+  }}
+  className="mt-4 w-full rounded-xl bg-red-500 p-4 font-black text-white hover:bg-red-600"
+>
+  ❌ BATALKAN PESANAN
+</button>
+
+
+</div>
+
+</div>
+
+)
+
+}
+
+
+
+
+
+
+
+
+{/* LIST PAKET */}
+
+<div
+
+className="
+mt-8
+grid
+gap-6
+md:grid-cols-2
+"
+
+>
+
+{
+
 robuxList.map((item)=>(
 
 
@@ -954,96 +1611,149 @@ robuxList.map((item)=>(
 key={item.robux}
 
 className={`
-
 relative
 overflow-hidden
-rounded-[32px]
-border
+rounded-3xl
 p-6
-shadow-xl
-transition
-hover:-translate-y-3
-hover:scale-[1.03]
+transition-all
+duration-500
+hover:scale-105
 
 ${
-darkMode
-?
-"bg-slate-800"
-:
-item.robux===500
-?
-"bg-gradient-to-br from-yellow-200 via-yellow-400 to-yellow-700"
-:
-item.robux===1000
-?
-"bg-gradient-to-br from-yellow-100 via-yellow-300 to-orange-500"
-:
-"bg-[#fff4e3]"
+  item.robux === 500
+    ? (
+        darkMode
+          ? "bg-gradient-to-br from-yellow-900 via-amber-700 to-yellow-900 border-[3px] border-yellow-300 shadow-[0_0_45px_rgba(250,204,21,.7)]"
+          : "bg-gradient-to-br from-yellow-100 via-white to-yellow-200 border-[3px] border-yellow-400 shadow-[0_0_40px_rgba(250,204,21,.45)]"
+      )
+    : item.robux === 1000
+    ? (
+        darkMode
+          ? "bg-gradient-to-br from-cyan-900 via-sky-700 to-cyan-900 border-[3px] border-sky-300 shadow-[0_0_45px_rgba(34,211,238,.7)]"
+          : "bg-gradient-to-br from-cyan-100 via-white to-sky-200 border-[3px] border-cyan-400 shadow-[0_0_40px_rgba(34,211,238,.45)]"
+      )
+    : (
+        darkMode
+          ? "bg-slate-800"
+          : "bg-[#fff4e3]"
+      )
 }
-
 `}
-
 >
 
 
-
-{
-item.robux===500 &&
-
-<div className="
+<div
+className="
 absolute
-left-4
-top-4
-rounded-full
-bg-orange-500
-px-4
-py-2
-font-black
-text-white
-shadow
-">
+-left-40
+top-0
+h-full
+w-24
+rotate-12
+bg-white/30
+blur-md
+animate-[shine_4s_linear_infinite]
+"
+/>
 
-🔥 BEST SELLER
+{item.robux === 500 && (
+  <div
+    className={`
+      relative
+      mb-5
+      w-fit
+      overflow-hidden
+      rounded-full
+      px-5
+      py-2
+      text-sm
+      font-black
+      tracking-wider
+      transition-all
+      duration-500
+      hover:scale-105
 
-</div>
+      ${
+        darkMode
+          ? "bg-gradient-to-r from-pink-500 via-rose-400 to-pink-600 text-white shadow-[0_0_35px_rgba(236,72,153,.9)]"
+          : "bg-gradient-to-r from-pink-300 via-white to-pink-400 text-pink-800 shadow-[0_0_25px_rgba(236,72,153,.6)] border border-pink-300"
+      }
+    `}
+  >
+    <span className="absolute inset-0 animate-pulse bg-white/20"></span>
 
-}
+    <span
+      className="
+      absolute
+      -left-16
+      top-0
+      h-full
+      w-10
+      rotate-12
+      bg-white/60
+      blur-sm
+      animate-[shine_3s_linear_infinite]
+      "
+    />
+
+    <span className="relative">
+      🔥 BEST SELLER
+    </span>
+  </div>
+)}
+
+{item.robux === 1000 && (
+  <div
+    className={`
+      relative
+      mb-5
+      w-fit
+      overflow-hidden
+      rounded-full
+      px-5
+      py-2
+      text-sm
+      font-black
+      tracking-wider
+      transition-all
+      duration-500
+      hover:scale-105
+
+      ${
+        darkMode
+          ? "bg-gradient-to-r from-cyan-500 via-sky-400 to-cyan-600 text-white shadow-[0_0_35px_rgba(6,182,212,.9)]"
+          : "bg-gradient-to-r from-cyan-300 via-white to-cyan-400 text-cyan-800 shadow-[0_0_25px_rgba(6,182,212,.6)] border border-cyan-300"
+      }
+    `}
+  >
+    <span className="absolute inset-0 animate-pulse bg-white/20"></span>
+
+    <span
+      className="
+      absolute
+      -left-16
+      top-0
+      h-full
+      w-10
+      rotate-12
+      bg-white/60
+      blur-sm
+      animate-[shine_3s_linear_infinite]
+      "
+    />
+
+    <span className="relative">
+      💎 BEST VALUE
+    </span>
+  </div>
+)}
+
+<div className="text-center">
 
 
+<div
 
-
-{
-item.robux===1000 &&
-
-<div className="
-absolute
-left-4
-top-4
-rounded-full
-bg-yellow-500
-px-4
-py-2
-font-black
-text-[#5b3925]
-shadow
-">
-
-👑 BEST VALUE
-
-</div>
-
-}
-
-
-
-
-<div className="
-mt-5
-text-center
-">
-
-
-<div className="
+className="
 mx-auto
 flex
 h-20
@@ -1053,8 +1763,9 @@ justify-center
 rounded-full
 bg-[#5b3925]
 text-4xl
-shadow-xl
-">
+"
+
+>
 
 💎
 
@@ -1062,108 +1773,87 @@ shadow-xl
 
 
 
-<h2 className={`
+
+
+<h2
+
+className={`
+
 mt-5
-text-center
 text-4xl
 font-black
 
+
 ${
 darkMode
+
 ?
+
 "text-white"
+
 :
+
 "text-[#5b3925]"
+
 }
 
-`}>
+`}
+
+>
+
 {item.robux}R
+
 </h2>
 
 
 
-<p className={`
-text-center
-font-black
-tracking-widest
+<p className="font-black">
 
-${
-darkMode
-?
-"text-white"
-:
-"text-[#5b3925]"
-}
-
-`}>
 PREMIUM ROBUX
+
 </p>
 
 
 
-<div className="
-my-6
-h-[2px]
-bg-yellow-500
-"></div>
 
 
 
-<div className="
-space-y-4
-">
+<div className="mt-5 space-y-3">
+
 
 
 <div
+
 className={`
-rounded-2xl
-p-5
-text-center
-shadow-inner
+
+rounded-xl
+p-4
+font-black
+
 
 ${
 darkMode
+
 ?
-"bg-green-900/40"
+
+"bg-green-900/40 text-green-300"
+
 :
-"bg-green-100"
+
+"bg-green-100 text-green-700"
+
 }
 
 `}
+
 >
 
-
-<p className={`font-black ${
-darkMode
-?
-"text-green-400"
-:
-"text-green-700"
-}`}>
 💚 GAMEPASS
-</p>
 
-
-<p className={`
-mt-2
-text-2xl
-font-black
-
-${
-darkMode
-?
-"text-white"
-:
-"text-[#5b3925]"
-}
-
-`}>
+<br/>
 
 Rp {item.gamepass.toLocaleString("id-ID")}
 
-</p>
-
-
 </div>
 
 
@@ -1171,60 +1861,44 @@ Rp {item.gamepass.toLocaleString("id-ID")}
 
 
 <div
+
 className={`
-rounded-2xl
-p-5
-text-center
-shadow-inner
+
+rounded-xl
+p-4
+font-black
+
 
 ${
 darkMode
+
 ?
-"bg-blue-900/40"
+
+"bg-blue-900/40 text-blue-300"
+
 :
-"bg-blue-100"
+
+"bg-blue-100 text-blue-700"
+
 }
 
 `}
+
 >
 
-
-<p className={`font-black ${
-darkMode
-?
-"text-blue-400"
-:
-"text-blue-700"
-}`}>
 💙 USERNAME
-</p>
 
-
-<p className={`
-mt-2
-text-3xl
-font-black
-
-${
-darkMode
-?
-"text-white"
-:
-"text-[#5b3925]"
-}
-
-`}>
+<br/>
 
 Rp {item.username.toLocaleString("id-ID")}
 
-</p>
-
-
 </div>
 
 
 
 </div>
+
+
 
 
 
@@ -1236,18 +1910,15 @@ pilihPaket(item.robux)
 }
 
 className="
-mt-7
+mt-6
 w-full
-rounded-2xl
+rounded-xl
 bg-gradient-to-r
 from-[#5b3925]
 to-[#c99a3b]
 p-4
 font-black
 text-white
-shadow-xl
-transition
-hover:scale-105
 "
 
 >
@@ -1268,543 +1939,398 @@ hover:scale-105
 
 }
 
-
 </div>
+
+
+
+
+
+
+
 {/* TESTIMONI */}
 
-<section className="
-mt-16
-">
+<section className="mt-20">
 
-
-<h2 className="
+<h2
+className={`
 text-center
-text-4xl
+text-5xl
 font-black
-">
+tracking-widest
+mb-12
 
-⭐ TESTIMONI
-
+${
+darkMode
+?
+"bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-300 bg-clip-text text-transparent drop-shadow-[0_0_20px_gold]"
+:
+"bg-gradient-to-r from-yellow-600 via-orange-500 to-yellow-700 bg-clip-text text-transparent"
+}
+`}
+>
+⭐ TESTIMONI CUSTOMER
 </h2>
 
-
-
-<div className="
-mt-8
-grid
-gap-5
-md:grid-cols-3
-">
-
+<div className="grid gap-7 md:grid-cols-3">
 
 {[
-"Robux masuk cepat banget! Admin ramah dan aman.",
-"Harga murah dan proses sangat cepat.",
-"Sudah berkali-kali order, selalu aman."
+"Robux masuk cepat banget!",
+"Admin ramah dan aman.",
+"Sudah order berkali-kali aman."
 ].map((text,index)=>(
 
-
 <div
 
 key={index}
 
 className={`
-
+relative
+overflow-hidden
 rounded-3xl
-p-6
-shadow-xl
-
-${
-darkMode
-?
-"bg-slate-800"
-:
-"bg-white"
-}
-
-`}
-
->
-
-
-⭐⭐⭐⭐⭐
-
-
-<p className="
-mt-3
-">
-
-{text}
-
-</p>
-
-
-
-<b>
-
-— Customer MY ROBUX
-
-</b>
-
-
-
-</div>
-
-
-))}
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-{/* CARA ORDER */}
-
-<section className="
-mt-16
-">
-
-
-<h2 className="
-text-4xl
-font-black
-">
-
-🛒 Cara Order
-
-</h2>
-
-
-
-<div className="
-mt-6
-grid
-gap-5
-md:grid-cols-4
-">
-
-
-{[
-["💎","Pilih Paket"],
-["👤","Isi Username"],
-["💳","Pembayaran"],
-["🚀","Robux Masuk"]
-
-].map((item,index)=>(
-
-
-<div
-
-key={index}
-
-className={`
-
-rounded-2xl
-p-5
-text-center
-shadow-xl
-
-${
-darkMode
-?
-"bg-slate-800"
-:
-"bg-[#fff4e3]"
-}
-
-`}
-
->
-
-
-<div className="
-text-4xl
-">
-
-{item[0]}
-
-</div>
-
-
-
-<h3 className="
-mt-3
-font-black
-">
-
-{index+1}. {item[1]}
-
-</h3>
-
-
-</div>
-
-
-))}
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-
-{/* FAQ */}
-
-<section className="
-mt-16
-">
-
-
-<h2 className="
-text-4xl
-font-black
-">
-
-❓ FAQ
-
-</h2>
-
-
-
-<div className="
-mt-6
-space-y-4
-">
-
-
-
-{[
-
-[
-"💎 Apakah Robux aman?",
-"Aman, gunakan metode transaksi yang benar."
-],
-
-[
-"⏱️ Berapa lama proses?",
-"Diproses setelah pembayaran berhasil."
-],
-
-[
-"🔒 Apakah perlu password?",
-"Tidak. Jangan pernah memberikan password Roblox."
-]
-
-].map((item,index)=>(
-
-
-<div
-
-key={index}
-
-className={`
-
-rounded-2xl
-p-5
-shadow-xl
-
-${
-darkMode
-?
-"bg-slate-800"
-:
-"bg-[#fff4e3]"
-}
-
-`}
-
->
-
-
-<h3 className="
-font-black
-">
-
-{item[0]}
-
-</h3>
-
-
-<p className="
-mt-2
-">
-
-{item[1]}
-
-</p>
-
-
-</div>
-
-
-))}
-
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-{/* SALURAN WA */}
-
-<section className="
-mt-16
-rounded-3xl
-bg-[#5b3925]
 p-8
-text-center
-text-white
-">
-
-
-<h2 className="
-text-3xl
-font-black
-">
-
-⭐ FULL TESTI? CEK SALURAN
-
-</h2>
-
-
-
-<p className="
-mt-3
-">
-
-Lihat testimoni lengkap customer MY ROBUX.
-
-</p>
-
-
-
-
-<a
-
-href="https://whatsapp.com/channel/0029VbDbCxi0QeagiImPiE3H"
-
-target="_blank"
-
-className="
-mt-5
-inline-block
-rounded-full
-bg-green-500
-px-6
-py-3
-font-black
-text-white
-transition
+transition-all
+duration-500
+hover:-translate-y-3
 hover:scale-105
-"
+
+${
+darkMode
+?
+"bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border border-yellow-500 shadow-[0_0_40px_rgba(250,204,21,.35)]"
+:
+"bg-gradient-to-br from-white via-yellow-50 to-orange-100 border border-yellow-300 shadow-xl"
+}
+`}
 
 >
 
-📢 Saluran WhatsApp MY ROBUX
+<div className="absolute right-0 top-0 h-24 w-24 rounded-full bg-yellow-400/20 blur-3xl"></div>
 
-</a>
+<div className="text-3xl">
+⭐⭐⭐⭐⭐
+</div>
 
+<p className="mt-5 text-lg font-bold leading-8">
+{text}
+</p>
 
+<div className="mt-7 flex items-center gap-3">
+
+<div
+className="
+flex
+h-14
+w-14
+items-center
+justify-center
+rounded-full
+bg-gradient-to-r
+from-yellow-400
+to-orange-500
+text-2xl
+"
+>
+👤
+</div>
+
+<div>
+
+<p className="font-black">
+Customer MY ROBUX
+</p>
+
+<p className="text-sm opacity-70">
+Verified Buyer ✔
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+))}
+
+</div>
 
 </section>
-
-
-
 
 
 
 {/* FOOTER */}
 
-<footer className={`
-mt-12
-rounded-3xl
-p-6
-text-center
-text-white
+<footer
+  className={`
+    mt-16
+    rounded-3xl
+    p-8
+    text-center
+    text-white
 
-${
-darkMode
-?
-"bg-slate-950"
-:
-"bg-[#5b3925]"
-}
+    ${
+      darkMode
+        ? "bg-slate-950"
+        : "bg-[#5b3925]"
+    }
+  `}
+>
 
-`}>
-
-
-
-<div className={`
-rounded-full
-px-5
-py-2
-font-black
-
-${
-darkMode
-?
-"bg-green-900 text-green-300"
-:
-"bg-green-100 text-green-700"
-}
-
-`}>
-🟢 STORE OPEN • MY ROBUX
-</div>
-
-
-
-<p className="
-mt-3
-">
-
-Trusted Robux Store • Fast & Safe
-
-</p>
-
-
-
-<a
-href="https://instagram.com/strmyrbx"
-target="_blank"
+  <div
 className={`
-mt-5
-inline-block
+mx-auto
+w-fit
 rounded-full
-px-6
+px-8
 py-3
 font-black
-transition
+border
+backdrop-blur-xl
+transition-all
+duration-500
+cursor-pointer
+hover:scale-110
+hover:-translate-y-1
 
 ${
 darkMode
 ?
-"bg-slate-700 text-white"
+"bg-white/10 border-yellow-300/30 text-yellow-300 hover:bg-yellow-400/15 hover:shadow-[0_0_40px_rgba(250,204,21,.9)]"
 :
-"bg-white text-[#5b3925]"
+"bg-white/45 border-white/70 text-green-700 hover:bg-white/65 hover:shadow-[0_0_35px_rgba(34,197,94,.7)]"
 }
 `}
 >
-📸 @strmyrbx
+🟢 STORE OPEN • MY ROBUX
+</div>
+
+  <div className="mt-10 flex flex-wrap justify-center gap-5">
+
+    <a
+href="https://instagram.com/strmyrbx"
+target="_blank"
+rel="noopener noreferrer"
+className={`
+rounded-full
+border
+backdrop-blur-xl
+px-6
+py-3
+font-black
+transition-all
+duration-500
+hover:-translate-y-1
+hover:scale-110
+
+${
+darkMode
+?
+"bg-white/10 border-pink-400/30 text-pink-300 hover:bg-pink-500/20 hover:shadow-[0_0_35px_rgba(236,72,153,.9)]"
+:
+"bg-white/45 border-white/70 text-pink-700 hover:bg-pink-500 hover:text-white hover:shadow-[0_0_30px_rgba(236,72,153,.8)]"
+}
+`}
+>
+📸 Instagram
 </a>
 
+    <a
+href="https://whatsapp.com/channel/0029VbDbCxi0QeagiImPiE3H"
+target="_blank"
+rel="noopener noreferrer"
+className={`
+rounded-full
+border
+backdrop-blur-xl
+px-6
+py-3
+font-black
+transition-all
+duration-500
+hover:-translate-y-1
+hover:scale-110
 
+${
+darkMode
+?
+"bg-white/10 border-green-400/30 text-green-300 hover:bg-green-500/20 hover:shadow-[0_0_35px_rgba(34,197,94,.9)]"
+:
+"bg-white/45 border-white/70 text-green-700 hover:bg-green-500 hover:text-white hover:shadow-[0_0_30px_rgba(34,197,94,.8)]"
+}
+`}
+>
+📢 Saluran WhatsApp
+</a>
 
-<p className="
-mt-4
-text-xs
-opacity-80
-">
+  </div>
 
-© 2026 MY ROBUX
+  <div className="mt-10 border-t border-white/10 pt-6">
 
-</p>
+    <p className="text-sm tracking-widest opacity-80">
+      © 2026 MY ROBUX
+    </p>
 
-
+  </div>
 
 </footer>
 
 
-
-
-
-{/* FLOATING WHATSAPP */}
-
 <a
-
-href="https://wa.me/628982186538"
-
-target="_blank"
-
-className="
+  href="https://wa.me/628982186538"
+  target="_blank"
+  rel="noopener noreferrer"
+  className={`
+group
 fixed
 bottom-8
 right-6
 z-50
+overflow-hidden
 flex
 items-center
-gap-3
+gap-4
 rounded-full
-bg-green-500
+border
+backdrop-blur-2xl
 px-5
 py-3
-text-white
-shadow-xl
 transition-all
-hover:scale-110
-hover:shadow-[0_0_35px_#22c55e]
-animate-pulse
-"
+duration-500
+ease-out
 
+hover:-translate-y-2
+hover:scale-105
+active:scale-95
+
+${
+darkMode
+?
+"bg-white/10 border-green-400/30 text-white shadow-[0_0_20px_rgba(34,197,94,.25)] hover:shadow-[0_0_55px_rgba(34,197,94,.9)]"
+:
+"bg-white/55 border-white/70 text-[#333] shadow-xl hover:shadow-[0_0_40px_rgba(34,197,94,.55)]"
+}
+`}
 >
 
+{/* Glossy Animation */}
+<div
+className="
+absolute
+-inset-full
+bg-gradient-to-r
+from-transparent
+via-white/40
+to-transparent
+rotate-12
+transition-all
+duration-700
+group-hover:translate-x-[260%]
+"
+/>
 
-<div className="
+{/* Icon */}
+<div
+className="
+relative
 flex
-h-11
-w-11
+h-12
+w-12
 items-center
 justify-center
 rounded-full
-bg-white/20
+bg-gradient-to-br
+from-green-400
+to-green-600
 text-2xl
-">
+shadow-lg
+transition-all
+duration-500
+group-hover:rotate-12
+group-hover:scale-110
+group-hover:shadow-[0_0_30px_rgba(34,197,94,.9)]
+"
+>
+
+<div
+className="
+absolute
+top-1
+left-1
+h-3
+w-6
+rounded-full
+bg-white/70
+blur-sm
+"
+/>
 
 💬
 
 </div>
 
+<div className="relative">
 
-
-<div>
-
-<p className="
+<p
+className={`
 text-xs
 font-bold
-">
+transition-all
+duration-500
 
-Need Help? 👑
+${
+darkMode
+?
+"text-green-200"
+:
+"text-green-700"
+}
 
+group-hover:tracking-widest
+`}
+>
+NEED HELP?
 </p>
 
-
-<p className="
+<h3
+className="
+relative
 font-black
-">
+tracking-wide
+transition-all
+duration-500
+group-hover:text-green-400
+"
+>
 
-Chat Owner
+<span className="relative z-10">
+CHAT ADMIN
+</span>
 
-</p>
+<span
+className="
+absolute
+inset-0
+blur-xl
+opacity-0
+text-green-400
+transition-all
+duration-500
+group-hover:opacity-100
+"
+>
+CHAT OWNER
+</span>
 
+</h3>
 
 </div>
 
-
 </a>
-
-
 
 </div>
 
 </main>
+
+</>
 
 );
 
