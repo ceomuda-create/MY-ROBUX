@@ -13,6 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://strmyrbx.netlify.app"),
+
   title: "MY ROBUX",
   description: "Premium Robux Store",
 
@@ -23,11 +25,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: "MY ROBUX",
     description: "Premium Robux Store",
-    url: "https://strmyrbx.netlify.app",
+    url: "/",
     siteName: "MY ROBUX",
     images: [
       {
-        url: "https://strmyrbx.netlify.app/logo.png",
+        url: "/logo.png",
         width: 1200,
         height: 630,
         alt: "MY ROBUX",
@@ -35,6 +37,11 @@ export const metadata: Metadata = {
     ],
     locale: "id_ID",
     type: "website",
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    images: ["/logo.png"],
   },
 };
 
