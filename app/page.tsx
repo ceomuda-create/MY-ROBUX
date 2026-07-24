@@ -142,12 +142,58 @@ const selected = robuxList.find(
 
 
 
-const price =
-method==="gamepass"
-?
-selected?.gamepass ?? 0
-:
-selected?.username ?? 0;
+function calculatePrice(
+  robux: number,
+  type: "gamepass" | "username"
+) {
+  const list = robuxList;
+
+  // Kalau pas dengan paket, pakai harga paket
+  const exact = list.find((item) => item.robux === robux);
+  if (exact) {
+    return type === "gamepass"
+      ? exact.gamepass
+      : exact.username;
+  }
+
+  // Cari paket bawah & atas
+  let lower = list[0];
+  let upper = list[list.length - 1];
+
+  for (let i = 0; i < list.length - 1; i++) {
+    if (
+      robux >= list[i].robux &&
+      robux <= list[i + 1].robux
+    ) {
+      lower = list[i];
+      upper = list[i + 1];
+      break;
+    }
+  }
+
+  const lowerPrice =
+    type === "gamepass"
+      ? lower.gamepass
+      : lower.username;
+
+  const upperPrice =
+    type === "gamepass"
+      ? upper.gamepass
+      : upper.username;
+
+  const ratio =
+    (robux - lower.robux) /
+    (upper.robux - lower.robux);
+
+  return Math.round(
+    lowerPrice + (upperPrice - lowerPrice) * ratio
+  );
+}
+
+const price = calculatePrice(
+  customRobux,
+  method
+);
 
 
 const ticketGamepass =
@@ -383,34 +429,31 @@ font-bold
 "
 >
 
+<p>
+✅ Via username harus sudah terverifikasi 18+.
+</p>
+
+<p>
+✅ Akun pembeli sudah verifikasi 2AF.
+</p>
 
 <p>
 ✅ MY ROBUX tidak meminta password atau OTP Roblox.
 </p>
 
-
 <p>
 ✅ Username harus benar sebelum order.
 </p>
 
-
 <p>
-✅ Pembayaran harus disertai bukti pembayaran.
+✅ Pembayaran harus disertai bukti transfer.
 </p>
-
 
 <p>
 ✅ Pesanan tanpa bukti pembayaran tidak diproses.
 </p>
 
-
-<p>
-✅ Jangan memberikan data akun Roblox.
-</p>
-
-
 </div>
-
 
 
 <button
@@ -785,17 +828,15 @@ font-black
 >
 
 <span>
-10R
+  10
 </span>
 
-
 <span>
-💎 {customRobux} Robux
+  💎 {customRobux}
 </span>
 
-
 <span>
-10000R
+  10000
 </span>
 
 </div>
@@ -803,33 +844,21 @@ font-black
 
 
 <input
-
-type="range"
-
-min="100"
-
-max="1000"
-
-step="100"
-
-value={customRobux}
-
-onChange={(e)=>
-sliderChange(
-Number(e.target.value)
-)
-}
-
-className="
-mt-3
-w-full
-accent-yellow-500
-"
-
+  type="range"
+  min={10}
+  max={10000}
+  step={10}
+  value={customRobux}
+  onChange={(e) => sliderChange(Number(e.target.value))}
+  className="
+    mt-3
+    w-full
+    accent-yellow-500
+  "
 />
-
-
-
+<p className="mt-2 text-center font-black">
+  Value: {customRobux}
+</p>
 {
 warning &&
 
