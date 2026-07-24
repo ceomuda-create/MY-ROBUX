@@ -649,7 +649,7 @@ text-center
 <h1
 className={`
 mt-3
-text-6xl
+text-3xl
 md:text-8xl
 font-black
 tracking-[0.15em]
@@ -1073,7 +1073,7 @@ Buat Gamepass:
 <h2
 
 className="
-text-6xl
+text-3xl md:text-6xl
 font-black
 "
 
