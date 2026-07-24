@@ -15,6 +15,27 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "MY ROBUX",
   description: "Premium Robux Store",
+
+  icons: {
+    icon: "/logo.png",
+  },
+
+  openGraph: {
+    title: "MY ROBUX",
+    description: "Premium Robux Store",
+    url: "https://strmyrbx.netlify.app",
+    siteName: "MY ROBUX",
+    images: [
+      {
+        url: "https://strmyrbx.netlify.app/logo.png",
+        width: 1200,
+        height: 630,
+        alt: "MY ROBUX",
+      },
+    ],
+    locale: "id_ID",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
