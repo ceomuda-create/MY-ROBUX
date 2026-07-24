@@ -1981,12 +1981,13 @@ text-white
 <section className="mt-20">
 
 <h2
-className={`
-text-center
-text-5xl
-font-black
-tracking-widest
-mb-12
+  className={`
+    text-center
+    text-3xl
+    md:text-5xl
+    font-black
+    tracking-widest
+    mb-12
 
 ${
 darkMode
